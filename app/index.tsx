@@ -1,11 +1,17 @@
 import { View, Text, Image } from "react-native";
-import React from "react";
+import React, { useEffect, useState } from "react";
 import { SafeAreaView } from "react-native-safe-area-context";
 import CustomButton from "@/components/CustomButton";
-import { useRouter } from "expo-router";
+import { Redirect, useRouter } from "expo-router";
+import { useSession } from "@/lib/useSession";
 
 const OnBoreadingScreen = () => {
   const router = useRouter();
+  const session = useSession();
+
+  if (session) {
+    return <Redirect href={"/choose-category"} />;
+  }
   return (
     <SafeAreaView className="justify-end h-full w-full bg-white  px-8 py-4">
       <Image

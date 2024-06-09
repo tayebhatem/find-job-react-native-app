@@ -1,0 +1,39 @@
+{
+  "project_info": {
+    "project_number": "830622382761",
+    "project_id": "jobo-425720",
+    "storage_bucket": "jobo-425720.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:830622382761:android:3c6c6cce709279f85847b8",
+        "android_client_info": {
+          "package_name": "com.tayebhatem.jobit"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "830622382761-jte6jqpsfefssvq3ton6fhcfnuo8vdrg.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDmU1hv2-B-_XTsDDeliw72Mo1d3DSG4Ow"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "830622382761-jte6jqpsfefssvq3ton6fhcfnuo8vdrg.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

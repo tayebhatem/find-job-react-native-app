@@ -25,12 +25,12 @@ const CustomInput = ({
       <Text className="text-base text-primary-gray-300 capitalize">
         {title}
       </Text>
-      <View className="p-3 mt-2 border border-primary-gray-300 rounded-md flex-row items-center ">
+      <View className="p-3 mt-2 border border-primary-gray-200 rounded-md flex-row items-center ">
         {title === "email" ? (
           <MaterialIcons name="email" size={24} color="#B7B5B1" />
-        ) : (
+        ) : title === "password" ? (
           <FontAwesome name="lock" size={24} color="#B7B5B1" />
-        )}
+        ) : null}
         <TextInput
           placeholder={placeholder}
           className="ml-3 text-base"

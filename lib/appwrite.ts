@@ -4,6 +4,7 @@ import {
   Client,
   Databases,
   ID,
+  OAuthProvider,
   Query,
   Storage,
 } from "react-native-appwrite";
@@ -16,6 +17,7 @@ export const appwriteConfig = {
   databaseId: "665eb5820009d031e40b",
   userCollectionId: "665eb594003852a3415a",
   verifyTokenCollectionId: "665fc26100059bba097a",
+  profileBucketId: "6663c89300341bb2d5c9",
 };
 
 const client = new Client();
@@ -66,9 +68,11 @@ export async function signIn(email: string, password: string) {
     if (!session) throw Error;
 
     const userVrified = await checkAccountVerivication(session.userId);
+
     if (!userVrified) {
+      await deleteToken(session.userId);
+
       const token = await createVerificationToken(session.userId);
-      console.log(`your OTP code is ${token.secret}`);
     }
 
     return userVrified;
@@ -90,11 +94,9 @@ export async function signOut() {
 export async function getCurrentSession() {
   try {
     const session = await account.getSession("current");
-    if (!session) throw Error;
+
     return session;
-  } catch (error) {
-    console.log(error);
-  }
+  } catch (error) {}
 }
 // Get Current User
 export async function getCurrentUser() {
@@ -102,15 +104,15 @@ export async function getCurrentUser() {
     const currentAccount = await account.get();
     if (!currentAccount) throw Error;
 
-    const currentUser = await databases.listDocuments(
+    const currentUser = await databases.getDocument(
       appwriteConfig.databaseId,
       appwriteConfig.userCollectionId,
-      [Query.equal("accountId", currentAccount.$id)]
+      currentAccount.$id
     );
 
     if (!currentUser) throw Error;
 
-    return currentUser.documents[0];
+    return currentUser;
   } catch (error) {
     console.log(error);
     return null;
@@ -121,12 +123,6 @@ const getAccount = async () => {
     const result = await account.get();
     return result;
   } catch (error) {}
-};
-const emailOTP = async (email: string) => {
-  const sessionToken = await account.createEmailToken(ID.unique(), email);
-
-  const userId = sessionToken.userId;
-  return userId;
 };
 
 //verification otp token
@@ -148,21 +144,31 @@ const createVerificationToken = async (id: string) => {
       }
     );
 
-    // if (!token) throw Error;
-
+    if (!token) throw Error;
+    console.log(`your OTP code is ${token.secret}`);
     return token;
   } catch (error: any) {
     throw new Error(error);
   }
 };
 
+export const resendCode = async () => {
+  try {
+    const session = await account.getSession("current");
+
+    const id = session.userId;
+    await deleteToken(id);
+    createVerificationToken(id);
+  } catch (error) {}
+};
 const deleteToken = async (id: string) => {
   try {
-    await databases.deleteDocument(
+    const response = await databases.deleteDocument(
       appwriteConfig.databaseId,
       appwriteConfig.verifyTokenCollectionId,
       id
     );
+    if (!response) return;
   } catch (error) {}
 };
 
@@ -184,21 +190,17 @@ export const verifyAccount = async (code: string) => {
     const session = await account.getSession("current");
 
     const id = session.userId;
-
     const token = await databases.getDocument(
       appwriteConfig.databaseId,
       appwriteConfig.verifyTokenCollectionId,
-      id,
-      [Query.equal("secret", code)]
+      id
     );
 
-    if (!token) {
-      console.log("Wrong OTP code !");
-      return;
+    if (token.secret !== code) {
+      return { success: false, error: "Wrong OTP code !" };
     } else {
       if (token.expDate < new Date()) {
-        console.log("OTP code has expired !");
-        return;
+        return { error: "OTP code has expired !" };
       }
 
       await databases.updateDocument(
@@ -212,7 +214,7 @@ export const verifyAccount = async (code: string) => {
 
       await deleteToken(id);
     }
-    console.log("sucess");
+    return { success: true, message: "Account verified successfully" };
   } catch (error) {
     console.log(error);
   }
@@ -229,6 +231,53 @@ const checkAccountVerivication = async (id: string) => {
 
     return user.verified;
   } catch (error) {
+    console.log(error);
+  }
+};
+
+export const updateUserType = async (type: string) => {
+  try {
+    const session = await account.getSession("current");
+
+    const id = session.userId;
+    await databases.updateDocument(
+      appwriteConfig.databaseId,
+      appwriteConfig.userCollectionId,
+      id,
+      {
+        userType: type,
+      }
+    );
+  } catch (error) {
+    console.log(error);
+  }
+};
+
+export const uploadImage = async (image: any) => {
+  if (!image) return;
+  const uri = image.uri;
+  const filename = uri.split("/").pop()!;
+  const type = `image/${filename.split(".").pop()}`;
+
+  const formData = new FormData();
+  formData.append("file", {
+    uri,
+    name: filename,
+    type,
+  } as any);
+  try {
+    const session = await account.getSession("current");
+    const id = session.userId;
+
+    const result = await storage.createFile(
+      appwriteConfig.profileBucketId,
+      id,
+      formData as any
+    );
+    if (!result) throw Error;
+
+    return result;
+  } catch (error: any) {
     console.log(error);
   }
 };

@@ -1,31 +1,48 @@
 import { View, Text, Image, TouchableOpacity } from "react-native";
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { SafeAreaView } from "react-native-safe-area-context";
 import CustomInput from "@/components/CustomInput";
-import { Link } from "expo-router";
+import { Link, Redirect, useRouter } from "expo-router";
 import CustomButton from "@/components/CustomButton";
-import { signIn } from "@/lib/appwrite";
+import { signIn, signOut } from "@/lib/appwrite";
+import { useSession } from "@/lib/useSession";
+import { ALERT_TYPE, Dialog, Toast } from "react-native-alert-notification";
 
 const SignIn = () => {
   const [form, setform] = useState({
     email: "",
     password: "",
   });
-  const [isLoading, setIsLoading] = useState(false);
 
+  const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState("");
+  const router = useRouter();
+  const session = useSession();
   const submit = async () => {
     if (form.email && form.password) {
       try {
+        //await signOut();
         setIsLoading(true);
-        const user = await signIn(form.email, form.password);
-        console.log(user);
-      } catch (error) {
-        console.log(error);
+        const verified = await signIn(form.email, form.password);
+        if (!verified) {
+          router.push("/verify-account");
+        } else {
+          console.log("dashboard");
+        }
+      } catch (error: any) {
+        Dialog.show({
+          type: ALERT_TYPE.DANGER,
+          title: "Error",
+          textBody: error.message,
+          button: "close",
+        });
       } finally {
         setIsLoading(false);
       }
     }
   };
+
+  if (session) return <Redirect href={"/verify-account"} />;
   return (
     <SafeAreaView className="bg-white h-full w-full px-6 justify-center">
       <Image
