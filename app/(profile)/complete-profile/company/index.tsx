@@ -10,15 +10,38 @@ import { useSelector } from "react-redux";
 import { RootState } from "@/app/store";
 import CustomButton from "@/components/CustomButton";
 import TextAreaInput from "@/components/TextAreaInput";
+import { createCompanyAccount } from "@/lib/appwrite";
 
 const Company = () => {
   const user = useUser();
   const router = useRouter();
   const state = useSelector((state: RootState) => state.state);
   const field = useSelector((state: RootState) => state.field);
-
+  const [form, setform] = useState({
+    name: "",
+    website: "",
+    adress: "",
+  });
   if (!user) return null;
 
+  const submit = async () => {
+    if (form.name && form.adress && field.id !== 0 && state.id !== 0) {
+      try {
+        await createCompanyAccount(
+          form.name,
+          form.website.toLowerCase(),
+          field.value,
+          state.value,
+          form.adress
+        );
+        router.push("../../../home");
+      } catch (error) {
+        console.log(error);
+      }
+    } else {
+      console.log("empty fileds");
+    }
+  };
   return (
     <SafeAreaView className="bg-white h-full w-full px-6  ">
       <Avatar imageUrl={user.avatar} />
@@ -26,12 +49,16 @@ const Company = () => {
         <CustomInput
           title="comany name"
           placeholder="Jhon daow"
-          onChange={() => {}}
+          onChange={(text: string) => {
+            setform({ ...form, name: text });
+          }}
         />
         <CustomInput
           title="Website (optionel)"
           placeholder="https://exmple.com"
-          onChange={() => {}}
+          onChange={(text: string) => {
+            setform({ ...form, website: text });
+          }}
         />
         <ComboNavigation
           title={"field"}
@@ -49,10 +76,12 @@ const Company = () => {
         <CustomInput
           title="Adress"
           placeholder="Type your adress ...."
-          onChange={() => {}}
+          onChange={(text: string) => {
+            setform({ ...form, adress: text });
+          }}
         />
       </ScrollView>
-      <CustomButton title="save" handlePress={() => {}} disabled={false} />
+      <CustomButton title="save" handlePress={submit} disabled={false} />
     </SafeAreaView>
   );
 };

@@ -17,6 +17,7 @@ export const appwriteConfig = {
   databaseId: "665eb5820009d031e40b",
   userCollectionId: "665eb594003852a3415a",
   verifyTokenCollectionId: "665fc26100059bba097a",
+  companyCollectionId: "66653027000cb15a3059",
   profileBucketId: "6663c89300341bb2d5c9",
 };
 
@@ -279,5 +280,44 @@ export const uploadImage = async (image: any) => {
     return result;
   } catch (error: any) {
     console.log(error);
+  }
+};
+export const createCompanyAccount = async (
+  name: string,
+  website: string,
+  field: string,
+  state: string,
+  adress: string
+) => {
+  try {
+    const session = await account.getSession("current");
+
+    const id = session.userId;
+    const user = await databases.updateDocument(
+      appwriteConfig.databaseId,
+      appwriteConfig.userCollectionId,
+      id,
+      {
+        name,
+        website,
+        state,
+        adress,
+      }
+    );
+    if (!user) throw Error;
+
+    const data = await databases.createDocument(
+      appwriteConfig.databaseId,
+      appwriteConfig.companyCollectionId,
+      ID.unique(),
+      {
+        field: field,
+        user: id,
+      }
+    );
+    if (!data) throw Error;
+    return data;
+  } catch (error: any) {
+    throw new Error(error);
   }
 };

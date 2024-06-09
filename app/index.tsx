@@ -10,7 +10,7 @@ const OnBoreadingScreen = () => {
   const session = useSession();
 
   if (session) {
-    return <Redirect href={"/choose-category"} />;
+    return <Redirect href={"/home"} />;
   }
   return (
     <SafeAreaView className="justify-end h-full w-full bg-white  px-8 py-4">
