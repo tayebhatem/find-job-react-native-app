@@ -6,7 +6,7 @@ const CompanyProfile = () => {
   return (
     <SafeAreaView className="bg-white h-full w-full px-6 justify-center">
       <View>
-        <Text>CompanyProfile</Text>
+        <Text>Company Profile</Text>
       </View>
     </SafeAreaView>
   );
