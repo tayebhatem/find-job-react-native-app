@@ -9,7 +9,6 @@ import { useRouter } from "expo-router";
 import { useSelector } from "react-redux";
 import { RootState } from "@/app/store";
 import CustomButton from "@/components/CustomButton";
-import TextAreaInput from "@/components/TextAreaInput";
 import { createCompanyAccount } from "@/lib/appwrite";
 
 const Company = () => {
@@ -44,7 +43,7 @@ const Company = () => {
   };
   return (
     <SafeAreaView className="bg-white h-full w-full px-6  ">
-      <Avatar imageUrl={user.avatar} />
+      <Avatar imageUrl={user.avatar} disabled={false} />
       <ScrollView className="h-full">
         <CustomInput
           title="comany name"
@@ -52,6 +51,7 @@ const Company = () => {
           onChange={(text: string) => {
             setform({ ...form, name: text });
           }}
+          value={form.name}
         />
         <CustomInput
           title="Website (optionel)"
@@ -59,6 +59,7 @@ const Company = () => {
           onChange={(text: string) => {
             setform({ ...form, website: text });
           }}
+          value={form.website}
         />
         <ComboNavigation
           title={"field"}
@@ -79,6 +80,7 @@ const Company = () => {
           onChange={(text: string) => {
             setform({ ...form, adress: text });
           }}
+          value={form.adress}
         />
       </ScrollView>
       <CustomButton title="save" handlePress={submit} disabled={false} />

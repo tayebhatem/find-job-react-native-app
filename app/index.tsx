@@ -10,8 +10,10 @@ const OnBoreadingScreen = () => {
   const session = useSession();
 
   if (session) {
+    
     return <Redirect href={"/home"} />;
   }
+
   return (
     <SafeAreaView className="justify-end h-full w-full bg-white  px-8 py-4">
       <Image
@@ -24,8 +26,7 @@ const OnBoreadingScreen = () => {
       </Text>
       <Text className="text-base text-primary-gray-500">
         Lorem ipsum dolor sit amet consectetur adipisicing elit. Adipisci,
-        repellat consequuntur quasi veritatis, provident natus ratione iste
-        molestiae laudantium blanditiis reiciendis possimus tempore
+        repellat consequuntur quasi veritatis.
       </Text>
       <CustomButton
         handlePress={() => {

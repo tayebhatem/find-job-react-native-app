@@ -11,6 +11,9 @@ module.exports = {
         "primary-gray-500": "#A5A29D",
         "primary-gray-300": "#B7B5B1",
         "primary-gray-200": "#EDECEB",
+        "primary-gray-100":"#F6F6F5",
+        "light":"#F6F8FA",
+        
       },
     },
   },

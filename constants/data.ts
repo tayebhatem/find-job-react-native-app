@@ -2,6 +2,7 @@ export interface Choice {
   id: number;
   value: string;
 }
+
 export const states: Choice[] = [
   {
     id: 1,
@@ -232,3 +233,32 @@ export const fields = [
   { id: 30, value: "Forestry and Logging" },
   { id: 31, value: "eCommerce" },
 ];
+export const experiences=[
+  {
+    id:1,
+    value:"1 year or less"
+  },
+  {
+    id:2,
+    value:"2 to 5 years"
+  },
+  {
+    id:3,
+    value:"More than 5 years"
+  },
+]
+
+export const education=[
+  {
+    id:1,
+    value:"Bac or less"
+  },
+  {
+    id:2,
+    value:"Bac + 3 years"
+  },
+  {
+    id:3,
+    value:"Bac + 5 years"
+  },
+]

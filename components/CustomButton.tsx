@@ -13,7 +13,7 @@ const CustomButton = ({
 }) => {
   return (
     <TouchableOpacity
-      className={`w-full flex-row justify-center px-4 py-6 my-4 bg-primary-500 items-center rounded-lg shadow-primary-500 shadow-md ${
+      className={`w-full flex-row justify-center px-4 py-6 my-3 bg-primary-500 items-center rounded-lg shadow-primary-500 shadow-md ${
         disabled && "opacity-70"
       } `}
       onPress={handlePress}

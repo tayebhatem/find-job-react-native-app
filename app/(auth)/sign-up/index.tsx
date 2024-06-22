@@ -8,17 +8,79 @@ import { createUser } from "@/lib/appwrite";
 
 const SignUp = () => {
   const router = useRouter();
-  const [form, setform] = useState({
-    email: "",
-    password: "",
-    confirmPassword: "",
+  const [form, setForm] = useState({
+    email: {
+      value: "",
+      message: ""
+    },
+    password: {
+      value: "",
+      message: ""
+    },
+    confirmPassword: {
+      value: "",
+      message: ""
+    },
   });
   const [isLoading, setIsLoading] = useState(false);
+
+  const isValid=()=>{
+    if(!form.email.value){
+      setForm((prevForm) => ({
+        ...prevForm,
+        email: {
+          ...prevForm.email,
+          message: "email is required!",
+        },
+      }))
+   
+    }
+    if(!form.password.value){
+      setForm((prevForm) => ({
+        ...prevForm,
+        password: {
+          ...prevForm.password,
+          message: "password is required!",
+        },
+      }))
+     
+    }
+    if(!form.confirmPassword.value){
+      setForm((prevForm) => ({
+        ...prevForm,
+        confirmPassword: {
+          ...prevForm.confirmPassword,
+          message: "confirm password is required!",
+        },
+      }))
+     
+    }
+
+    if(form.confirmPassword.value!==form.password.value){
+      setForm((prevForm) => ({
+        ...prevForm,
+        confirmPassword: {
+          ...prevForm.confirmPassword,
+          message: "password does not match!",
+        },
+      }))
+     
+    }
+    
+    if(form.email.message || form.password.message || form.confirmPassword.message){
+        return false
+    }else{
+    
+     return true
+    }
+  }
+
+
   const submit = async () => {
-    if (form.email && form.password && form.confirmPassword) {
+    if (isValid()) {
       try {
         setIsLoading(true);
-        await createUser(form.email, form.password);
+        await createUser(form.email.value, form.password.value);
         router.push("/verify-account");
       } catch (error) {
         console.log(error);
@@ -41,24 +103,84 @@ const SignUp = () => {
       <CustomInput
         title={"email"}
         placeholder="Natasha28@hotmail.com"
-        onChange={(text: string) => {
-          setform({ ...form, email: text });
-        }}
+        showMessage={
+          (text: string) => {
+              setForm((prevForm) => ({
+                ...prevForm,
+                email: {
+                  ...prevForm.email,
+                  message: text,
+                },
+              }))
+          
+            }
+       }  
+          onChange={(text: string) => {
+      setForm((prevForm) => ({
+        ...prevForm,
+        email: {
+          ...prevForm.email,
+          value: text,
+        },
+      }));
+    }} 
+        value={form.email.value}
+        message={form.email.message}
       />
 
       <CustomInput
         title={"password"}
         placeholder="******************"
-        onChange={(text: string) => {
-          setform({ ...form, password: text });
-        }}
+        showMessage={
+          (text: string) => {
+              setForm((prevForm) => ({
+                ...prevForm,
+                password: {
+                  ...prevForm.password,
+                  message: text,
+                },
+              }))
+          
+            }
+       }  
+          onChange={(text: string) => {
+      setForm((prevForm) => ({
+        ...prevForm,
+        password: {
+          ...prevForm.password,
+          value: text,
+        },
+      }));
+    }} 
+        value={form.password.value}
+        message={form.password.message}
       />
       <CustomInput
         title={"confirm password"}
         placeholder="******************"
-        onChange={(e: any) => {
-          setform({ ...form, confirmPassword: e });
-        }}
+        showMessage={
+          (text: string) => {
+              setForm((prevForm) => ({
+                ...prevForm,
+                confirmPassword: {
+                  ...prevForm.confirmPassword,
+                  message: text,
+                },
+              }))
+          
+            }
+       }  
+          onChange={(text: string) => {
+      setForm((prevForm) => ({
+        ...prevForm,
+        confirmPassword: {
+          ...prevForm.confirmPassword,
+          value: text,
+        },
+      }));
+    }} 
+        value={form.confirmPassword.value}
+        message={form.confirmPassword.message}
       />
       <CustomButton title="Sign up" handlePress={submit} disabled={isLoading} />
 

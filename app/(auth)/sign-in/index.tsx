@@ -9,25 +9,59 @@ import { useSession } from "@/lib/useSession";
 import { ALERT_TYPE, Dialog, Toast } from "react-native-alert-notification";
 
 const SignIn = () => {
-  const [form, setform] = useState({
-    email: "",
-    password: "",
+  const [form, setForm] = useState({
+    email: {
+      value: "",
+      message: ""
+    },
+    password: {
+      value: "",
+      message: ""
+    },
   });
 
   const [isLoading, setIsLoading] = useState(false);
-  const [error, setError] = useState("");
+  
   const router = useRouter();
   const session = useSession();
+  const isValid=()=>{
+    if(!form.email.value){
+      setForm((prevForm) => ({
+        ...prevForm,
+        email: {
+          ...prevForm.email,
+          message: "email is required!",
+        },
+      }))
+   
+    }
+    if(!form.password.value){
+      setForm((prevForm) => ({
+        ...prevForm,
+        password: {
+          ...prevForm.password,
+          message: "password is required!",
+        },
+      }))
+     
+    }
+   
+    if(form.email.message || form.password.message){
+        return false
+    }else{
+     return true
+    }
+  }
   const submit = async () => {
-    if (form.email && form.password) {
+    if (isValid()) {
       try {
-        //await signOut();
+       
         setIsLoading(true);
-        const verified = await signIn(form.email, form.password);
+        const verified = await signIn(form.email.value, form.password.value);
         if (!verified) {
           router.push("/verify-account");
         } else {
-          console.log("dashboard");
+          router.push("/home");
         }
       } catch (error: any) {
         Dialog.show({
@@ -55,19 +89,61 @@ const SignIn = () => {
         Lorem ipsum dolor sit amet consectetur adipisicing elit.
       </Text>
       <CustomInput
+
         title={"email"}
         placeholder="Natasha28@hotmail.com"
-        onChange={(text: string) => {
-          setform({ ...form, email: text });
-        }}
+
+        showMessage={
+          (text: string) => {
+              setForm((prevForm) => ({
+                ...prevForm,
+                email: {
+                  ...prevForm.email,
+                  message: text,
+                },
+              }))
+          
+            }
+       }  
+          onChange={(text: string) => {
+      setForm((prevForm) => ({
+        ...prevForm,
+        email: {
+          ...prevForm.email,
+          value: text,
+        },
+      }));
+    }} 
+        value={form.email.value}
+        message={form.email.message}
       />
 
       <CustomInput
         title={"password"}
         placeholder="******************"
-        onChange={(text: string) => {
-          setform({ ...form, password: text });
-        }}
+       showMessage={
+          (text: string) => {
+              setForm((prevForm) => ({
+                ...prevForm,
+                password: {
+                  ...prevForm.password,
+                  message: text,
+                },
+              }))
+          
+            }
+       }  
+          onChange={(text: string) => {
+      setForm((prevForm) => ({
+        ...prevForm,
+        password: {
+          ...prevForm.password,
+          value: text,
+        },
+      }));
+    }} 
+        value={form.password.value}
+        message={form.password.message}
       />
       <Link
         href={"/send-otp"}

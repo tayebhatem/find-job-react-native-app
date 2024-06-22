@@ -14,11 +14,11 @@ const ComboNavigation = ({
 }) => {
   return (
     <View className="w-full my-2">
-      <Text className="text-base text-primary-gray-300 capitalize">
+      <Text className="text-base text-primary-gray-500 font-medium capitalize">
         {title}
       </Text>
       <TouchableOpacity
-        className="py-4 px-6 mt-2 border border-primary-gray-200 rounded-md flex-row  items-center justify-between "
+        className="py-4 px-6 mt-2 border border-primary-gray-200 bg-primary-gray-100 rounded-md flex-row  items-center justify-between "
         onPress={navigate}
       >
         <Text

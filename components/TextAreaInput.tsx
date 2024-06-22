@@ -4,37 +4,46 @@ import { FontAwesome, MaterialIcons } from "@expo/vector-icons";
 
 const TextAreaInput = ({
   title,
+  value,
+  message,
+  showMessage,
   placeholder,
   onChange,
 }: {
   title: string;
+  value:string;
+  showMessage:any;
+  message:string;
   placeholder: string;
   onChange: any;
 }) => {
-  const [error, seterror] = useState("");
+
   const handlChange = (text: string) => {
     onChange(text);
     if (text === "") {
-      seterror(`${title} is required!`);
+      showMessage(`${title} is required!`)
+     
     } else {
-      seterror("");
+      showMessage("")
     }
   };
   return (
-    <View className="w-full my-2">
-      <Text className="text-base text-primary-gray-300 capitalize">
+    <View className="w-full my-1">
+      <Text className="text-base text-primary-gray-500 font-medium capitalize">
         {title}
       </Text>
-      <View className="p-3 mt-2 border border-primary-gray-200 rounded-md flex-row items-center ">
+      <View className={`p-3 mt-2 border ${message?'border-red-500':'border-primary-gray-200'} bg-primary-gray-100 rounded-md flex-row items-center ${!message && 'focus:border-primary-500'}`}>
         <TextInput
-          numberOfLines={4}
+        value={value}
+        multiline={true}
+          numberOfLines={6}
           placeholder={placeholder}
           className="ml-3 text-base"
-          secureTextEntry={title === "password"}
-          onChangeText={(text) => handlChange(text)}
-        />
+          style={{textAlignVertical:'top'}}
+          onChangeText={(text) => handlChange(text)}/>
+        
       </View>
-      {error && <Text className="text-red-500">{error}</Text>}
+      {message && <Text className="text-red-500 mt-1">{message}</Text>}
     </View>
   );
 };

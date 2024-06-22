@@ -13,12 +13,13 @@ export const appwriteConfig = {
   endpoint: "https://cloud.appwrite.io/v1",
   platform: "com.tayebhatem.jobit",
   projectId: "665e6ae400187d847eac",
-  storageId: "6656445900358660b5c9",
   databaseId: "665eb5820009d031e40b",
   userCollectionId: "665eb594003852a3415a",
   verifyTokenCollectionId: "665fc26100059bba097a",
   companyCollectionId: "66653027000cb15a3059",
+  offersCollectionId: "667184e9003445be0ffa",
   profileBucketId: "6663c89300341bb2d5c9",
+  
 };
 
 const client = new Client();
@@ -81,6 +82,15 @@ export async function signIn(email: string, password: string) {
     throw new Error(error);
   }
 }
+export const updatePassword=async(password:string)=>{
+   try {
+    const result=await account.updatePassword(password)
+
+    if(!result) throw Error()
+   } catch (error:any) {
+    throw new Error(error)
+   }
+}
 // Sign Out
 export async function signOut() {
   try {
@@ -119,6 +129,73 @@ export async function getCurrentUser() {
     return null;
   }
 }
+
+// Get  User by id
+export async function getUserById(id:string) {
+  try {
+
+
+    const user = await databases.getDocument(
+      appwriteConfig.databaseId,
+      appwriteConfig.userCollectionId,
+     id
+    );
+
+    if (!user) throw Error;
+
+    return user;
+  } catch (error) {
+    console.log(error);
+    return null;
+  }
+}
+
+//get company
+export async function getCompany() {
+  try {
+    const session = await account.getSession("current");
+
+    const id = session.userId;
+
+    const company = await databases.listDocuments(
+      appwriteConfig.databaseId,
+      appwriteConfig.companyCollectionId,
+      [
+        Query.equal('user', id)
+    ]
+    );
+
+    if (!company) throw Error;
+  
+    return company.documents[0];
+  } catch (error) {
+    console.log(error);
+   
+  }
+}
+
+
+
+//get company by id
+export async function getCompanyById(id:string) {
+  
+  try {
+  
+    const data = await databases.getDocument(
+      appwriteConfig.databaseId,
+      appwriteConfig.companyCollectionId,
+      id
+    );
+
+    if (!data) throw Error;
+    
+    return data;
+  } catch (error) {
+    console.log(error);
+   
+  }
+}
+
 const getAccount = async () => {
   try {
     const result = await account.get();
@@ -253,40 +330,97 @@ export const updateUserType = async (type: string) => {
     console.log(error);
   }
 };
-
-export const uploadImage = async (image: any) => {
-  if (!image) return;
-  const uri = image.uri;
-  const filename = uri.split("/").pop()!;
-  const type = `image/${filename.split(".").pop()}`;
-
-  const formData = new FormData();
-  formData.append("file", {
-    uri,
-    name: filename,
-    type,
-  } as any);
+const updateUserAvatar = async (url: URL) => {
   try {
     const session = await account.getSession("current");
+
     const id = session.userId;
-
-    const result = await storage.createFile(
-      appwriteConfig.profileBucketId,
+    await databases.updateDocument(
+      appwriteConfig.databaseId,
+      appwriteConfig.userCollectionId,
       id,
-      formData as any
+      {
+        avatar: url,
+      }
     );
-    if (!result) throw Error;
-
-    return result;
-  } catch (error: any) {
+  } catch (error) {
     console.log(error);
   }
 };
+
+const getFilePreview=async(fileId:string)=> {
+  let fileUrl;
+
+  try {
+    const session = await account.getSession("current");
+
+    const id = session.userId;
+
+    fileUrl = storage.getFilePreview(
+      appwriteConfig.profileBucketId,
+      id,
+      2000,
+      2000,
+      "top",
+      100
+    );
+
+    if (!fileUrl) throw Error;
+
+    return fileUrl;
+  } catch (error:any) {
+    throw new Error(error);
+  }
+}
+export const uploadImage = async (file: any) => {
+  if (!file) return;
+
+  const { uri, mimeType, fileName } = file;
+  const response = await fetch(uri);
+  const blob = await response.blob();
+  const size = blob.size;
+
+  const asset = {
+    uri,
+    type: mimeType,
+    size,
+    name: fileName 
+  };
+
+
+  try {
+    const session = await account.getSession("current");
+    const id = session.userId;
+    await deleteFile(id)
+    const result = await storage.createFile(
+      appwriteConfig.profileBucketId,
+      id,
+      asset
+    );
+    if (!result) throw Error;
+   const fileUrl=await getFilePreview(result.$id)
+   await updateUserAvatar(fileUrl)
+    return result;
+  } catch (error:any) {
+   throw new Error(error.message)
+  }
+};
+
+const deleteFile=async(id:string)=>{
+try {
+  const result = await storage.deleteFile(
+    appwriteConfig.profileBucketId, 
+    id 
+);
+} catch (error:any) {
+  throw new Error(error.message)
+}
+}
 export const createCompanyAccount = async (
   name: string,
   website: string,
-  field: string,
-  state: string,
+  field: number,
+  state: number,
   adress: string
 ) => {
   try {
@@ -313,6 +447,186 @@ export const createCompanyAccount = async (
       {
         field: field,
         user: id,
+      }
+    );
+    if (!data) throw Error;
+    return data;
+  } catch (error: any) {
+    throw new Error(error);
+  }
+};
+
+
+export const updateCompany = async (
+  id:string,
+  name: string,
+  website: string,
+  field: number,
+  state: number,
+  adress: string
+) => {
+  try {
+    const session = await account.getSession("current");
+
+    const userId = session.userId;
+    const user = await databases.updateDocument(
+      appwriteConfig.databaseId,
+      appwriteConfig.userCollectionId,
+      userId,
+      {
+        name,
+        website,
+        state,
+        adress,
+      }
+    );
+    if (!user) throw Error;
+
+    const data = await databases.updateDocument(
+      appwriteConfig.databaseId,
+      appwriteConfig.companyCollectionId,
+      id,
+      {
+        field: field,
+
+      }
+    );
+    if (!data) throw Error;
+    return data;
+  } catch (error: any) {
+    throw new Error(error);
+  }
+};
+
+
+//get company offers
+export async function getOffersByCompanyId(id:string) {
+  try {
+  
+
+    const offers = await databases.listDocuments(
+      appwriteConfig.databaseId,
+      appwriteConfig.offersCollectionId,
+      [
+        Query.equal('company', id),
+        Query.equal('archived',false),
+        Query.orderDesc("datetime")
+    ]
+    );
+
+    if (!offers) throw Error;
+  
+    return offers.documents;
+  } catch (error) {
+    console.log(error);
+   
+  }
+}
+
+//get company offers
+export async function getArchivedOffers(id:string) {
+  try {
+  
+
+    const offers = await databases.listDocuments(
+      appwriteConfig.databaseId,
+      appwriteConfig.offersCollectionId,
+      [
+        Query.equal('company', id),
+        Query.equal('archived',true),
+        Query.orderDesc("datetime")
+    ]
+    );
+
+    if (!offers) throw Error;
+  
+    return offers.documents;
+  } catch (error) {
+    console.log(error);
+   
+  }
+}
+
+//get company offer by id
+export async function getOfferById(id:string) {
+  try {
+  
+
+    const offer = await databases.getDocument(
+      appwriteConfig.databaseId,
+      appwriteConfig.offersCollectionId,
+     id
+    );
+
+    if (!offer) throw Error;
+  
+    return offer;
+  } catch (error) {
+    console.log(error);
+   
+  }
+}
+
+export const createOffer=async(id:string | undefined,title:string,description:string,experience:number,education:number)=>{
+  const datetime=new Date()
+  try {
+   const offer= await databases.createDocument(
+      appwriteConfig.databaseId,
+      appwriteConfig.offersCollectionId,
+      ID.unique(),
+      {
+        company:id,
+        title,
+        description,
+        experience,
+        datetime,
+        education
+      }
+      )
+      if(!offer) throw Error();
+      return offer
+  } catch (error:any) {
+    throw new Error(error)
+  }
+}
+
+
+
+//delete offer
+export const deleteOffer = async (
+  id:string,
+) => {
+  try {
+    
+
+    const response = await databases.deleteDocument(
+      appwriteConfig.databaseId,
+      appwriteConfig.offersCollectionId,
+      id,
+      
+    );
+    if (!response) throw Error;
+   
+  } catch (error: any) {
+    throw new Error(error);
+  }
+};
+
+//archive offer
+export const archiveOffer = async (
+  id:string,
+  archive:boolean
+) => {
+  try {
+    
+
+    const data = await databases.updateDocument(
+      appwriteConfig.databaseId,
+      appwriteConfig.offersCollectionId,
+      id,
+      {
+        archived: archive,
+
       }
     );
     if (!data) throw Error;

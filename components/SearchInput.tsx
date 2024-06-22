@@ -30,7 +30,7 @@ const SearchInput = ({
 
   return (
     <View className="w-full my-2">
-      <View className="p-3 mt-2 border border-primary-gray-200 rounded-md flex-row items-center ">
+      <View className="p-3 mt-2 border border-gray-300 rounded-md flex-row items-center ">
         <Feather name="search" size={24} color="#B7B5B1" />
         <TextInput
           placeholder={placeholder}
